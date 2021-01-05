@@ -34,14 +34,33 @@ func main(){
 
 	http.HandleFunc("/encode", foo)
 	http.HandleFunc("/decode", bar)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8090", nil)
 }
 
 func foo(w http.ResponseWriter, r *http.Request){
+	p1 := person{
+		First: "Evadne",
+	}
+
+	// Write to response writer
+	err := json.NewEncoder(w).Encode(p1) // encode data to write to ResponseWriter
+	// Check the error
+	if err != nil {
+		log.Println("Encoded bad data", err)
+	}
 
 }
 
 func bar(w http.ResponseWriter, r *http.Request){
 
+	var p1 person
+	err := json.NewDecoder(r.Body).Decode(&p1)  // decode data to read from ResponseWriter
+	if err != nil {
+		log.Println(
+			"Decoded bad data",
+			err,
+		)
+	}
+	log.Println("Person: ", p1)
 }
 
