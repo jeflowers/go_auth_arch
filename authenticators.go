@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/hmac"
 	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -17,6 +18,12 @@ func main(){
 	for i := 1; i <= 64; i++{
 		key = append(key, byte(i))
 	}
+
+	h := sha512.New()
+	h.Write([]byte("hello"))
+	s := h.Sum(nil)
+	fmt.Println(hex.EncodeToString(s))
+
 	passwrd := "God!sGoodT0m3"
 	hashedPasswrd, err := hashPassword(passwrd)
 	if err != nil{
@@ -52,7 +59,7 @@ func comparePassword(password string, hashedPass []byte) error {
    	Used in:  Cryptographic signing --> Way to prove the value was created/validated by a
              specific person
 	HMAC -- Hash Message Authentication Code  --> https://godoc.org/crypto/hmac
-	In general HMAC is a cryptographic signing algorithm
+	In general HMAC is a cryptographic signing algorithm making sure messages have not changed
 */
 func signMessage(msg []byte)([]byte, error){
 	h := hmac.New(sha512.New, key)
@@ -60,11 +67,11 @@ func signMessage(msg []byte)([]byte, error){
 	 if err != nil{
 	 	return nil, fmt.Errorf("Error while hashing message %w", err)
 	 }
-	 signature := h.Sum(nil)
+	 signature := h.Sum(nil)   // get back your hash
 	 return signature, nil
 }
 
-/* Check signature */
+/* Check signature of signed message*/
 func checkSig(msg, sig []byte)(bool, error)  {
 	//first sign the message
 	newSig, err := signMessage(msg)
@@ -75,6 +82,5 @@ func checkSig(msg, sig []byte)(bool, error)  {
 	/* Check if true or false*/
 	same := hmac.Equal(newSig, sig)
 	return same, nil
-
 
 }
